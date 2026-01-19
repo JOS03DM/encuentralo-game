@@ -19,13 +19,18 @@ body {
   align-items: center;
   justify-content: center;
   background: black;
-  transition: background 0.2s;
+  transition: background 0.15s;
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
 }
 
-/* MENSAJE PRINCIPAL DVD */
+/* FLASH AL TOCAR */
+.flash {
+  box-shadow: inset 0 0 60px rgba(255,255,255,0.25);
+}
+
+/* MENSAJE DVD */
 #alerta {
   position: absolute;
   padding: 20px 40px;
@@ -64,7 +69,7 @@ body {
 
 button {
   margin-top: 20px;
-  padding: 12px 30px;
+  padding: 14px 34px;
   font-size: 16px;
   font-family: 'Orbitron', monospace;
   cursor: pointer;
@@ -96,18 +101,18 @@ button {
 
 <div id="recompensa">
   <h1>🔑 Has encontrado la llave</h1>
-  <button onclick="mostrarCapibara()">Abrir</button>
+  <button id="btnAbrir">Abrir</button>
 </div>
 
 <script>
 /* ===============================
-   CONFIGURACIÓN
+   ESTADO
 ================================ */
 let juegoActivo = true;
 let intervalo;
 
 /* ===============================
-   FONDO OPTIMIZADO (PC + MÓVIL)
+   FONDO (MÁS RÁPIDO)
 ================================ */
 function iniciarJuego() {
   intervalo = setInterval(() => {
@@ -115,26 +120,36 @@ function iniciarJuego() {
 
     let r = Math.random();
 
-    // Verde estable (más tiempo)
-    if (r < 0.35) {
-      document.body.style.background = "#00ff00";
+    if (r < 0.28) {
+      document.body.style.background = "#00ff00"; // estable
     } else {
       const otros = ["#ff00ff", "#00ffff", "#ff0000", "#ffff00"];
       document.body.style.background =
         otros[Math.floor(Math.random() * otros.length)];
     }
-  }, 230);
+  }, 150); // 🔥 MÁS RÁPIDO
 }
 
 /* ===============================
-   DETECCIÓN DE TOQUE / CLICK
+   FEEDBACK VISUAL (PISTA)
+================================ */
+function flashPista() {
+  document.body.classList.add("flash");
+  setTimeout(() => {
+    document.body.classList.remove("flash");
+  }, 80);
+}
+
+/* ===============================
+   INTERACCIÓN (PC + MÓVIL)
 ================================ */
 function detectarInteraccion(e) {
-  e.preventDefault();
   if (!juegoActivo) return;
 
-  let bg = getComputedStyle(document.body).backgroundColor;
+  e.preventDefault();
+  flashPista();
 
+  let bg = getComputedStyle(document.body).backgroundColor;
   if (bg.includes("0, 255, 0")) {
     ganar();
   }
@@ -157,6 +172,15 @@ function ganar() {
 }
 
 /* ===============================
+   BOTÓN FUNCIONAL (FIX MÓVIL)
+================================ */
+document.getElementById("btnAbrir").addEventListener("click", mostrarCapibara);
+document.getElementById("btnAbrir").addEventListener("touchstart", (e) => {
+  e.stopPropagation();
+  mostrarCapibara();
+});
+
+/* ===============================
    RECOMPENSA
 ================================ */
 function mostrarCapibara() {
@@ -168,11 +192,11 @@ function mostrarCapibara() {
 }
 
 /* ===============================
-   MOVIMIENTO DVD
+   DVD
 ================================ */
 const alerta = document.getElementById("alerta");
 let x = 60, y = 80;
-let dx = 1.8, dy = 1.6;
+let dx = 2.2, dy = 2;
 
 function moverDVD() {
   if (!juegoActivo) return;
