@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Encuéntralo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: monospace;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  transition: background 0.2s;
+}
+
+/* MENSAJE PRINCIPAL */
+#alerta {
+  position: absolute;
+  padding: 20px 40px;
+  color: #fff;
+  font-size: 34px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  font-family: 'Orbitron', monospace;
+  border: 3px solid #ffe600;
+  box-shadow:
+    0 0 10px #ffe600,
+    0 0 25px rgba(255,230,0,0.8);
+  background: rgba(0,0,0,0.6);
+  animation: brillo 1.5s infinite;
+}
+
+/* PISTA */
+#pista {
+  position: absolute;
+  color: rgba(255,255,255,0.15);
+  font-size: 14px;
+  font-family: monospace;
+  letter-spacing: 4px;
+  top: 50%;
+  animation: parpadeo 0.15s infinite;
+}
+
+/* RECOMPENSA */
+#recompensa {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-family: 'Orbitron', monospace;
+  cursor: pointer;
+  border: 2px solid #ffe600;
+  background: black;
+  color: white;
+  box-shadow: 0 0 15px #ffe600;
+}
+
+/* ANIMACIONES */
+@keyframes brillo {
+  0% { box-shadow: 0 0 5px #ffe600; }
+  50% { box-shadow: 0 0 30px #ffe600; }
+  100% { box-shadow: 0 0 5px #ffe600; }
+}
+
+@keyframes parpadeo {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="alerta">ENCUÉNTRALO</div>
+<div id="pista">UNO NO CAMBIA</div>
+
+<div id="recompensa">
+  <h1>🔑 Has encontrado la llave</h1>
+  <button onclick="mostrarCapibara()">Abrir</button>
+</div>
+
+<script>
+/* ===============================
+   CONFIGURACIÓN DEL JUEGO
+================================ */
+let colores = [
+  "#ff00ff",
+  "#00ffff",
+  "#ff0000",
+  "#ffff00",
+  "#00ff00" // VERDE ESTABLE
+];
+
+let juegoActivo = true;
+let intervalo;
+
+/* ===============================
+   FONDO CAMBIANTE
+================================ */
+function iniciarJuego() {
+  intervalo = setInterval(() => {
+    if (!juegoActivo) return;
+    let color = colores[Math.floor(Math.random() * colores.length)];
+    document.body.style.background = color;
+  }, 180);
+}
+
+/* ===============================
+   DETECCIÓN DE CLICK
+================================ */
+document.body.addEventListener("click", () => {
+  if (!juegoActivo) return;
+
+  let bg = getComputedStyle(document.body).backgroundColor;
+  if (bg.includes("0, 255, 0")) {
+    ganar();
+  }
+});
+
+/* ===============================
+   GANAR
+================================ */
+function ganar() {
+  juegoActivo = false;
+  clearInterval(intervalo);
+
+  document.body.style.background = "black";
+  document.getElementById("alerta").style.display = "none";
+  document.getElementById("pista").style.display = "none";
+  document.getElementById("recompensa").style.display = "flex";
+}
+
+/* ===============================
+   CAPIBARA
+================================ */
+function mostrarCapibara() {
+  document.getElementById("recompensa").innerHTML = `
+    <h1>🎉 FELICIDADES 🎉</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Capybara_%28Hydrochoerus_hydrochaeris%29.JPG" width="300">
+    <p>Has completado el ritual.</p>
+  `;
+}
+
+/* ===============================
+   MOVIMIENTO DVD
+================================ */
+const alerta = document.getElementById("alerta");
+let x = 100;
+let y = 100;
+let dx = 2.5;
+let dy = 2;
+
+function moverDVD() {
+  if (!juegoActivo) return;
+
+  x += dx;
+  y += dy;
+
+  const ancho = alerta.offsetWidth;
+  const alto = alerta.offsetHeight;
+
+  if (x + ancho >= window.innerWidth || x <= 0) dx *= -1;
+  if (y + alto >= window.innerHeight || y <= 0) dy *= -1;
+
+  alerta.style.left = x + "px";
+  alerta.style.top = y + "px";
+
+  requestAnimationFrame(moverDVD);
+}
+
+/* ===============================
+   INICIO
+================================ */
+iniciarJuego();
+moverDVD();
+</script>
+
+</body>
+</html>
